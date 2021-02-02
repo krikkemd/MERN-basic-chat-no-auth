@@ -1,10 +1,16 @@
 import { useEffect, useState, useRef } from 'react';
 import io from 'socket.io-client';
 // import moment from 'moment';
-import axios from 'axios';
+// import axios from 'axios';
 
 // CSS
 import '../css/Chat.scss';
+
+import {
+  getAllChatMessages,
+  createChatMessage,
+  deleteChatMessage,
+} from '../redux/actions/chatMessageActions';
 
 let server = 'http://localhost:1337';
 const socket = io(server);
@@ -22,11 +28,33 @@ const ChatPage = () => {
   });
 
   // ComponentDidMount: fetch all chats messages once
+  // useEffect(() => {
+  //   axios.get(`${server}/api/v1/chatMessages`).then(res => {
+  //     console.log(res);
+  // setMessages(res.data.chatMessages);
+  //   });
+  // }, []);
+
+  // ComponentDidMount: fetch all chats messages once
   useEffect(() => {
-    axios.get(`${server}/api/v1/chatMessages`).then(res => {
-      console.log(res);
-      setMessages(res.data.chatMessages);
-    });
+    // (async () => {
+    //   try {
+    //     const res = await getAllChatMessages();
+    //     console.log(res);
+    //     setMessages(res.data.chatMessages);
+    //   } catch (err) {
+    //     console.log(err);
+    //   }
+    // })();
+
+    getAllChatMessages()
+      .then(res => {
+        console.log(res);
+        setMessages(res.data.chatMessages);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }, []);
 
   //   ComponentDidUpdate
@@ -63,12 +91,12 @@ const ChatPage = () => {
   }, []);
 
   //   Local funcions
-  const deleteChatMessage = id => {
-    console.log(messages);
-    axios.delete(`${server}/api/v1/chatMessages/${id}`);
-    // socket.emit('❌ DELETE chat message', id);
-    // setMessages(messages.filter(message => message._id !== id));
-  };
+  // const deleteChatMessage = id => {
+  //   console.log(messages);
+  //   axios.delete(`${server}/api/v1/chatMessages/${id}`);
+  //   // socket.emit('❌ DELETE chat message', id);
+  //   // setMessages(messages.filter(message => message._id !== id));
+  // };
 
   const handleChange = e => {
     setChatMessage(e.target.value);
@@ -83,19 +111,12 @@ const ChatPage = () => {
     // let timestamp = moment();
     let sender = true;
 
-    // Insert chat message into mongoDB
-    axios.post(`${server}/api/v1/chatMessages`, {
+    createChatMessage({
       body: chatMessage,
       username,
       sender,
       userId,
     });
-    // socket.emit('✅ Input Chat Message', {
-    //   body: chatMessage,
-    //   username,
-    //   sender,
-    //   userId,
-    // });
 
     setChatMessage('');
   };

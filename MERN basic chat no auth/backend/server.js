@@ -54,7 +54,7 @@ db.once('open', () => {
   });
 
   // CHANGESTREAM SECTION
-  const messageCollection = db.collection('messages');
+  const messageCollection = db.collection('chatmessages');
 
   // Watch the chat messages collection for changes
   const changeStream = messageCollection.watch();

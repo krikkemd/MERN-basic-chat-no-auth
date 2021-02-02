@@ -1,4 +1,4 @@
-const { ChatMessage } = require('../schemas/ChatMessage');
+const { ChatMessage } = require('../models/ChatMessageModel');
 
 exports.getAllChatMessages = async (req, res) => {
   try {
@@ -31,42 +31,26 @@ exports.createChatMessage = async (req, res) => {
     });
 
     console.log('✅ chat message created');
-    // console.log(newMessage);
 
     // return newMessage;
     return res.status(201).json({
       status: 'success',
-      test: 'hallo',
-      newMessage,
+      chatMessage: newMessage,
     });
   } catch (err) {
     console.error(err);
+    return res.status(400).json({
+      status: 'failed',
+      error: err.errors.body.message,
+    });
   }
 };
 
 exports.deleteChatMessage = async (req, res) => {
   const chatMessageId = req.params.id;
 
-  try {
-    await ChatMessage.deleteOne({ _id: chatMessageId }, err => {
-      if (err) console.error(err.message);
-
-      console.log('❌ chat message deleted');
-
-      return res.status(204).json({
-        status: 'success',
-      });
-    });
-  } catch (err) {
-    return res.status(500).json({
-      status: 'error',
-      error: err.message,
-    });
-  }
-};
-
-const checkDocExists = async docId => {
-  await ChatMessage.exists({ _id: docId }, (err, res) => {
+  // Check if the document exists in the db collection
+  await ChatMessage.exists({ _id: chatMessageId }, async (err, result) => {
     if (err) {
       console.log(err);
       return res.status(500).json({
@@ -74,7 +58,37 @@ const checkDocExists = async docId => {
         error: err.message,
       });
     } else {
-      console.log(res);
+      // if doc doesnt exist
+      if (!result) {
+        console.log(`❌ document exists: ${result}`);
+        return res.status(404).json({
+          status: 'failed',
+          message: '404 not found',
+        });
+
+        // if doc exists
+      } else if (result) {
+        console.log(`✅ document exists: ${result}`);
+
+        // try to delete the document
+        try {
+          await ChatMessage.deleteOne({ _id: chatMessageId }, err => {
+            if (err) console.error(err.message);
+
+            console.log('❌ chat message deleted');
+
+            return res.status(204).json({
+              status: 'success',
+            });
+          });
+        } catch (err) {
+          console.log(err);
+          return res.status(500).json({
+            status: 'error',
+            error: err.message,
+          });
+        }
+      }
     }
   });
 };
