@@ -1,0 +1,18 @@
+basis chatapplicate met:
+React, local state + socket io, realtime werkt goed met prevProps + useEffect + axios
+Node JS socket io + changestream + 
+Mongoose gekoppeld aan Mongodb
+1 mongoose chat schema
+express router voor chatMessage routes. (API routes) werken ook via postman
+MVC pattern: chat controller met crud operations
+Bestanden zijn gestructureerd
+
+
+1) De client stuurt get, post, delete requests naar de backend met axios.
+2) De backend maakt obv de request(post, delete) een verandering aan in de database
+3) De backend luistert dmv "changeStream.watch()" naar die veranderingen in de database collectie
+4) Wanneer er een verandering plaats vind, emit de backend via socket.io de data terug naar de client
+5) De client "luistert" met socket.io naar die emits, en maakt op basis daarvan veranderingen aan in de state.
+
+serverside:
+changestream is gekoppeld aan de chat collection in de db, en "on change", io.emitten we data terug naar de client.
